@@ -1,4 +1,11 @@
-Uses Crt;
+{Program Scape}
+{$linklib gcc}
+{$linklib SDLmain}
+Uses dos,
+     sdl,
+     crt;
+{$asmmode intel}
+
 label 1, 2, 3, 4, 5, 6, l1, l2, l3;
 CONST MaxStars = 400; ScreenDist = 40;
 Type S1 = Record
@@ -13,39 +20,11 @@ Var Star: Array[1..MaxStars] of S1;
 Var OldStars: Array[1..MaxStars] of S2;
 Var Stars: Array[1..MaxStars] of S2;
 Var X, Y, T, C: Integer;
+Var scr: PSDL_Surface;
 
 Procedure PutPixel (Xx, Yy : Integer; Col: Byte);
 begin
-Mem[$A000:Xx + Yy * 320]:=Col;
-end;
-
-Procedure Pal(Col,R,G,B : Byte); assembler;
-asm
-  mov    dx,3c8h
-  mov    al,[col]
-  out    dx,al
-  inc    dx
-  mov    al,[r]
-  out    dx,al
-  mov    al,[g]
-  out    dx,al
-  mov    al,[b]
-  out    dx,al
-end;
-
-Procedure WaitRetrace; assembler;
-label
-  e1, e2;
-asm
-  mov dx,3DAh
-e1:
-  in al,dx
-  and al,08h
-  jnz e1
-e2:
-  in al,dx
-  and al,08h
-  jz  e2
+scr[Xx + Yy * 320]:=Col;
 end;
 
 Procedure NewStar;
@@ -62,16 +41,9 @@ End;
 Begin;
 Randomize;
 
-asm
-  mov ax, 13h
-  int 10h
-end;
+if SDL_Init( SDL_INIT_VIDEO ) < 0 then HALT;
+scr:=SDL_SetVideoMode(320,200,24, SDL_SWSURFACE);
 
-T:= 255;
-For C:=1 to 64 do BEGIN
- Pal(T,C,C,C);
- T:= T - 1;
-END;
 
 For T:= 1 to MaxStars do BEGIN
 1: Star[T].Z:= Random(63) + 1;
@@ -99,7 +71,7 @@ For T:= 1 to MaxStars do BEGIN
  IF (X > 0) and (X < 320) and (Y > 0) and (Y < 200) Then PutPixel(X,Y, Star[T].Z + 192);
 END;
 
-WaitRetrace;
+{WaitRetrace;}
 
 For T:= 1 to MaxStars do BEGIN
  OldStars[T].X:= Stars[T].X + 160;
@@ -113,10 +85,7 @@ End;
 
 Until KeyPressed;
 
-asm
-  mov ax, 3h
-  int 10h
-end;
+SDL_Quit;
 
 Textcolor(15);
 Textbackground(0);
