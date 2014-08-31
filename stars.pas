@@ -53,7 +53,7 @@ Begin;
 
     If SDL_Init( SDL_INIT_VIDEO ) < 0 Then HALT;
     scr := SDL_SetVideoMode(320,200,8, SDL_SWSURFACE);
-		If scr = Nil Then HALT;
+    If scr = Nil Then HALT;
 
     For T:= 1 To MaxStars Do
         Begin
@@ -66,7 +66,7 @@ Begin;
         End;
 
     Repeat
-				SDL_LockSurface(scr);
+	SDL_LockSurface(scr);
 
         For T:= 1 To MaxStars Do
             Begin
@@ -99,10 +99,10 @@ Begin;
                 If Star[T].Z = 0 Then NewStar;
             End;
         SDL_UnlockSurface(scr);
-				SDL_UpdateRect(scr, 0, 0 ,0 ,0);
+	SDL_UpdateRect(scr, 0, 0 ,0 ,0);
     Until KeyPressed;
 
-		SDL_FreeSurface(scr);
+    SDL_FreeSurface(scr);
     SDL_Quit;
 
     Textcolor(15);
